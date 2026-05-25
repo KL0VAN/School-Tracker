@@ -1,5 +1,5 @@
 <?php
-// avvia la sessione PHP, poiche ricordiamo che e stateless quindi ci sono metodi attraverso cvooki e session che ci permettono di mantenere lo stato tra una pagina e l'altra, in questo caso ci serve per mantenere l'utente loggato tra una pagina e l'altra
+// avvia la sessione PHP, poiche ricordiamo che e stateless quindi ci sono metodi attraverso cookie session che ci permettono di mantenere lo stato tra una pagina e l'altra, in questo caso ci serve per mantenere l'utente loggato tra una pagina e l'altra
 session_start();
 // comunicazione con mysql
 require_once "config/db.php";
@@ -8,7 +8,11 @@ require_once "config/db.php";
 $errore = "";
 // se esiste gia un valore nella sessione ID_Professore, allora vuol dire che l'utente e gia loggato, quindi lo reindirizzo alla dashboard
 if (isset($_SESSION["ID_Professore"])) {
-    header("Location: pages/dashboard.php");
+    if (isset($_SESSION["IsAmministratore"]) && $_SESSION["IsAmministratore"] == 1) {
+        header("Location: pages/admin_dashboard.php");
+    } else {
+        header("Location: pages/dashboard.php");
+    }
     exit;
 }
 // Quando premi accedi viene inviata una richiesta POST, quindi se il metodo della richiesta e POST allora eseguo il codice al suo interno
@@ -23,9 +27,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 Professore.Cognome,
                 Professore.Mail,
                 Professore.PasswordHash,
+                Professore.IsAmministratore,
                 Materia.NomeMateria
             FROM Professore
-            JOIN Materia ON Professore.ID_Materia = Materia.ID_Materia
+            LEFT JOIN Materia ON Professore.ID_Materia = Materia.ID_Materia
             WHERE Professore.Mail = :mail";
 
     // evitiamo di concatenare direttamente la variabile $mail nella query SQL per prevenire attacchi di SQL Injection, invece usiamo i parametri con i placeholder :mail e poi li bindiamo con i valori reali usando l'array associativo nell'esecuzione della query
@@ -44,9 +49,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["Nome"] = $professore["Nome"];
         $_SESSION["Cognome"] = $professore["Cognome"];
         $_SESSION["Mail"] = $professore["Mail"];
-        $_SESSION["Materia"] = $professore["NomeMateria"];
+        $_SESSION["IsAmministratore"] = $professore["IsAmministratore"];
 
-        header("Location: pages/dashboard.php");
+        if ($professore["IsAmministratore"] == 1) {
+            $_SESSION["Materia"] = "Amministrazione";
+            header("Location: pages/admin_dashboard.php");
+        } else {
+            $_SESSION["Materia"] = $professore["NomeMateria"];
+            header("Location: pages/dashboard.php");
+        }
         exit;
 
     } else {

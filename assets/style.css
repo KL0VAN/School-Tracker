@@ -815,15 +815,6 @@ p[style*="color: red"] {
     }
 }
 
-/* Override finale per la scheda del singolo studente */
-body img.student-detail-photo {
-    width: min(460px, 100%) !important;
-    height: auto !important;
-    max-height: 520px;
-    border-radius: 34px;
-    object-fit: contain;
-}
-
 /* =========================================================
    DASHBOARD MIGLIORATA
 ========================================================= */

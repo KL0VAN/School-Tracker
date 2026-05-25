@@ -156,14 +156,14 @@ $media = $stmtMedia->fetch(PDO::FETCH_ASSOC);
         class="student-detail-photo"
         src="../<?php echo htmlspecialchars($studente["Foto"]); ?>" 
         alt="Foto studente" 
-        width="460"
+        width="120"
     >
 <?php else: ?>
     <img 
         class="student-detail-photo"
         src="../uploads/studenti/default.png" 
         alt="Foto default" 
-        width="460"
+        width="120"
     >
 <?php endif; ?>
 
